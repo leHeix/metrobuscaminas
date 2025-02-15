@@ -4,6 +4,8 @@
  */
 package metrobuscaminas;
 
+import metrobuscaminas.interfaces.MainMenu;
+
 /**
  *
  * @author Naim
@@ -14,7 +16,7 @@ public class MetroBuscaminas {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        MainMenu menu = new MainMenu();
     }
     
 }
