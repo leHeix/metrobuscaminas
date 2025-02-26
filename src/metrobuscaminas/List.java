@@ -85,7 +85,7 @@ public class List<T>
         }
         
         node.setNext(null);
-        this.last = null;
+        this.last = node;
         this.size--;
     }
 }
