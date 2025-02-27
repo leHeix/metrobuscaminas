@@ -5,6 +5,7 @@
 package metrobuscaminas;
 
 import metrobuscaminas.interfaces.*;
+import java.util.Random;
 
 /**
  *
@@ -15,6 +16,7 @@ public class Game {
     private int row_count;
     private int column_count;
     private int mine_count;
+    private List<Boolean> mines;
     
     public Game(MainMenu menu, int row_count, int column_count, int mine_count)
     {
@@ -22,6 +24,13 @@ public class Game {
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
+        
+        int box_count = this.row_count * this.column_count;
+        while(box_count < 0)
+        {
+            this.mines.insert_back(false);
+            box_count--;
+        }
     }
     
     public void show_game_window()
