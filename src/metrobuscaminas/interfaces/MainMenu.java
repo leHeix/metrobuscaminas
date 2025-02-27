@@ -4,8 +4,9 @@
  */
 package metrobuscaminas.interfaces;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import javax.swing.JFrame;
 import metrobuscaminas.Utils;
 
 /**
@@ -22,6 +23,7 @@ public class MainMenu extends javax.swing.JFrame {
         this.setVisible(true);
         this.setLocationRelativeTo(null);
         this.setTitle("MetroBuscaminas | Menú principal");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     /**
@@ -155,6 +157,18 @@ public class MainMenu extends javax.swing.JFrame {
             Utils.showMessageError("Minas inválidas", "El número de minas es inválido. Debe estar entre el rango establecido.");
             return;
         }
+        
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addComponentListener(new ComponentAdapter() {
+            public void componentShown(ComponentEvent ev)
+            {
+                MainMenu.this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            }
+        });
+        
+        Game game = new Game(this);
+        this.setVisible(false);
+        game.setVisible(true);
     }//GEN-LAST:event_play_buttonActionPerformed
 
     /**
