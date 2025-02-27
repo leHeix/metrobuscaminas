@@ -8,6 +8,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 import metrobuscaminas.Utils;
+import metrobuscaminas.Game;
 
 /**
  *
@@ -166,9 +167,9 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
         
-        Game game = new Game(this);
+        Game game = new Game(this, row_count, column_count, mine_count);
         this.setVisible(false);
-        game.setVisible(true);
+        game.show_game_window();
     }//GEN-LAST:event_play_buttonActionPerformed
 
     /**

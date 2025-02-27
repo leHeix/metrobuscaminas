@@ -4,10 +4,15 @@
  */
 package metrobuscaminas.interfaces;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Image;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -17,7 +22,7 @@ import metrobuscaminas.Utils;
  *
  * @author Nikos
  */
-public class Game extends javax.swing.JFrame {
+public class GameWindow extends javax.swing.JFrame {
     private BufferedImage top_mid_image_buf;
     private BufferedImage side_border_image_buf;
     private MainMenu main_menu;
@@ -25,13 +30,17 @@ public class Game extends javax.swing.JFrame {
     /**
      * Creates new form Game
      */
-    public Game(MainMenu menu) {
+    public GameWindow(MainMenu menu) {
         top_mid_image_buf = this.load_image("border_hor.png");
         if(top_mid_image_buf == null)
             return;
         
         side_border_image_buf = this.load_image("border_vert.png");
         if(side_border_image_buf == null)
+            return;
+        
+        Font counter_font = this.load_font("digital-7.ttf").deriveFont(32f);
+        if(counter_font == null)
             return;
         
         this.main_menu = menu;
@@ -42,10 +51,13 @@ public class Game extends javax.swing.JFrame {
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
         this.resize_icons();
+        this.flag_count_label.setFont(counter_font);
+        this.timer_label.setFont(counter_font);
+        
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent ev)
             {
-                Game.this.resize_icons();
+                GameWindow.this.resize_icons();
             }
         });
         
@@ -55,7 +67,7 @@ public class Game extends javax.swing.JFrame {
                 int response = JOptionPane.showConfirmDialog(null, "¿Seguro que desea salir de la partida?", "Salir", JOptionPane.YES_NO_OPTION);
                 if(response == JOptionPane.YES_OPTION)
                 {
-                    Game.this.close_game();
+                    GameWindow.this.close_game();
                 }
             }
         });
@@ -75,6 +87,19 @@ public class Game extends javax.swing.JFrame {
         }
         
         return img;
+    }
+    
+    private Font load_font(String name)
+    {
+        try
+        {
+            return Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/metrobuscaminas/interfaces/assets/" + name));
+        }
+        catch(IOException | FontFormatException e)
+        {
+            Utils.showMessageError("Error de carga de recursos", "No se pudo cargar " + name + ". Asegúrate de que los archivos del juego están íntegros.");
+            return null;
+        }
     }
     
     private void resize_icons()
@@ -121,6 +146,9 @@ public class Game extends javax.swing.JFrame {
         mid_panel_border_left = new javax.swing.JLabel();
         mid_panel_border_right = new javax.swing.JLabel();
         mid_panel = new javax.swing.JPanel();
+        flag_count_label = new javax.swing.JLabel();
+        timer_label = new javax.swing.JLabel();
+        restart_button = new javax.swing.JLabel();
         mid_panel_separator = new javax.swing.JPanel();
         panel_separator_left = new javax.swing.JLabel();
         panel_separator_right = new javax.swing.JLabel();
@@ -159,17 +187,24 @@ public class Game extends javax.swing.JFrame {
         mid_parent_panel.add(mid_panel_border_right, java.awt.BorderLayout.EAST);
 
         mid_panel.setBackground(new java.awt.Color(62, 62, 62));
+        mid_panel.setLayout(new java.awt.BorderLayout());
 
-        javax.swing.GroupLayout mid_panelLayout = new javax.swing.GroupLayout(mid_panel);
-        mid_panel.setLayout(mid_panelLayout);
-        mid_panelLayout.setHorizontalGroup(
-            mid_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 282, Short.MAX_VALUE)
-        );
-        mid_panelLayout.setVerticalGroup(
-            mid_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 63, Short.MAX_VALUE)
-        );
+        flag_count_label.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        flag_count_label.setForeground(new java.awt.Color(170, 1, 0));
+        flag_count_label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        flag_count_label.setText("   000");
+        mid_panel.add(flag_count_label, java.awt.BorderLayout.WEST);
+
+        timer_label.setBackground(new java.awt.Color(170, 1, 0));
+        timer_label.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        timer_label.setForeground(new java.awt.Color(170, 1, 0));
+        timer_label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        timer_label.setText("000   ");
+        mid_panel.add(timer_label, java.awt.BorderLayout.EAST);
+
+        restart_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        restart_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/metrobuscaminas/interfaces/assets/face_unpressed.png"))); // NOI18N
+        mid_panel.add(restart_button, java.awt.BorderLayout.CENTER);
 
         mid_parent_panel.add(mid_panel, java.awt.BorderLayout.CENTER);
 
@@ -253,6 +288,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel corner_top_left;
     private javax.swing.JLabel corner_top_middle;
     private javax.swing.JLabel corner_top_right;
+    private javax.swing.JLabel flag_count_label;
     private javax.swing.JPanel game_panel;
     private javax.swing.JLabel game_panel_border_left;
     private javax.swing.JLabel game_panel_border_right;
@@ -265,6 +301,8 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel panel_separator_left;
     private javax.swing.JLabel panel_separator_middle;
     private javax.swing.JLabel panel_separator_right;
+    private javax.swing.JLabel restart_button;
+    private javax.swing.JLabel timer_label;
     private javax.swing.JPanel top_panel;
     // End of variables declaration//GEN-END:variables
 }
