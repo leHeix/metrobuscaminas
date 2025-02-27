@@ -9,10 +9,7 @@ import java.awt.FontFormatException;
 import java.awt.Image;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -39,9 +36,11 @@ public class GameWindow extends javax.swing.JFrame {
         if(side_border_image_buf == null)
             return;
         
-        Font counter_font = this.load_font("digital-7.ttf").deriveFont(32f);
+        Font counter_font = this.load_font("digital-7.ttf");
         if(counter_font == null)
             return;
+        
+        counter_font = counter_font.deriveFont(32f);
         
         this.main_menu = menu;
         
