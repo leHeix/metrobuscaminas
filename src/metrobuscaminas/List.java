@@ -88,4 +88,28 @@ public class List<T>
         this.last = node;
         this.size--;
     }
+    
+    public Optional<T> get(int index)
+    {
+        if(index < 0 || index >= this.size)
+            return new Optional(EmptyOptionalValue.EMPTY);
+        
+        Node<T> node = this.first;
+        for(int i = 0; i < index; ++i)
+            node = node.getNext();
+        
+        return new Optional(node.getValue());
+    }
+    
+    public void set(int index, T value)
+    {
+        if(index < 0 || index >= this.size)
+            return;
+        
+        Node<T> node = this.first;
+        for(int i = 0; i < index; ++i)
+            node = node.getNext();
+        
+        node.setValue(value);
+    }
 }
