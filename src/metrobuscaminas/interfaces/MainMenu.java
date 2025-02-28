@@ -168,6 +168,7 @@ public class MainMenu extends javax.swing.JFrame {
         });
         
         Game game = new Game(this, row_count, column_count, mine_count);
+        game.initialize_window();
         this.setVisible(false);
         game.show_game_window();
     }//GEN-LAST:event_play_buttonActionPerformed

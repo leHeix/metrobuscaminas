@@ -13,6 +13,7 @@ import java.util.Random;
  */
 public class Game {
     private GameWindow window;
+    private MainMenu menu;
     private int row_count;
     private int column_count;
     private int mine_count;
@@ -24,10 +25,14 @@ public class Game {
         this.column_count = column_count;
         this.mine_count = mine_count;
         this.mines = new List<Boolean>();
+        this.menu = menu;
        
         this.assign_mines();
-        
-        this.window = new GameWindow(menu);
+    }
+    
+    public void initialize_window()
+    {
+        this.window = new GameWindow(menu, this);
     }
     
     private void assign_mines()
@@ -67,4 +72,7 @@ public class Game {
     {
         this.window.setVisible(true);
     }
+    
+    public int get_columns() { return this.column_count; }
+    public int get_rows() { return this.row_count; }
 }

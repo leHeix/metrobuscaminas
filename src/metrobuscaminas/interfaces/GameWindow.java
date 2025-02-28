@@ -4,9 +4,13 @@
  */
 package metrobuscaminas.interfaces;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,6 +18,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import metrobuscaminas.Utils;
+import metrobuscaminas.Game;
+import metrobuscaminas.List;
 
 /**
  *
@@ -23,11 +29,13 @@ public class GameWindow extends javax.swing.JFrame {
     private BufferedImage top_mid_image_buf;
     private BufferedImage side_border_image_buf;
     private MainMenu main_menu;
+    private Game game;
+    private List<javax.swing.JLabel> boxes;
     
     /**
      * Creates new form Game
      */
-    public GameWindow(MainMenu menu) {
+    public GameWindow(MainMenu menu, Game parent) {
         top_mid_image_buf = this.load_image("border_hor.png");
         if(top_mid_image_buf == null)
             return;
@@ -36,18 +44,63 @@ public class GameWindow extends javax.swing.JFrame {
         if(side_border_image_buf == null)
             return;
         
+        BufferedImage closed_box_image_buf = this.load_image("closed.png");
+        if(closed_box_image_buf == null)
+            return;
+        
         Font counter_font = this.load_font("digital-7.ttf");
         if(counter_font == null)
             return;
         
         counter_font = counter_font.deriveFont(32f);
+        javax.swing.ImageIcon closed_box_image_icon = new javax.swing.ImageIcon(closed_box_image_buf);
         
         this.main_menu = menu;
+        this.game = parent;
         
         initComponents();
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        
+        // Inicializar campo de minas
+        GridBagLayout game_layout = new GridBagLayout();
+        GridBagConstraints layout_constraints = new GridBagConstraints();
+        
+        this.game_panel.setLayout(game_layout);
+        int box_count = this.game.get_rows() * this.game.get_columns();
+        this.boxes = new List<javax.swing.JLabel>();
+        
+        layout_constraints.insets = new Insets(1, 1, 1, 1);
+        layout_constraints.gridx = 0;
+        layout_constraints.weightx = 0.0;
+        layout_constraints.weighty = 0.0;
+        layout_constraints.gridy = 0;
+        layout_constraints.fill = GridBagConstraints.HORIZONTAL;
+        
+        for(int i = 0; i < box_count; ++i)
+        {
+            javax.swing.JLabel box_button = new javax.swing.JLabel(closed_box_image_icon);
+            box_button.setSize(closed_box_image_icon.getIconWidth(), closed_box_image_icon.getIconHeight());
+            box_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+            
+            layout_constraints.gridx++;
+            
+            // Generar nueva fila al terminarse la actual
+            if(i % this.game.get_columns() == 0)
+            {
+                layout_constraints.gridy++;
+                layout_constraints.gridx = 0;
+                layout_constraints.fill = GridBagConstraints.REMAINDER;
+            }
+            
+            game_layout.setConstraints(box_button, layout_constraints);
+            this.game_panel.add(box_button);
+            this.boxes.insert_back(box_button);
+        }
+        
+        this.setSize(this.getWidth() + (closed_box_image_icon.getIconWidth() * this.game.get_columns()), this.getHeight() + (closed_box_image_icon.getIconHeight() * this.game.get_rows()));
+        this.setPreferredSize(this.getSize());
         
         this.resize_icons();
         this.flag_count_label.setFont(counter_font);
@@ -238,18 +291,7 @@ public class GameWindow extends javax.swing.JFrame {
         game_parent_panel.add(game_panel_border_right, java.awt.BorderLayout.EAST);
 
         game_panel.setBackground(new java.awt.Color(62, 62, 62));
-
-        javax.swing.GroupLayout game_panelLayout = new javax.swing.GroupLayout(game_panel);
-        game_panel.setLayout(game_panelLayout);
-        game_panelLayout.setHorizontalGroup(
-            game_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 282, Short.MAX_VALUE)
-        );
-        game_panelLayout.setVerticalGroup(
-            game_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 267, Short.MAX_VALUE)
-        );
-
+        game_panel.setLayout(new java.awt.GridBagLayout());
         game_parent_panel.add(game_panel, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -257,7 +299,7 @@ public class GameWindow extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(top_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(mid_parent_panel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(mid_parent_panel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
             .addComponent(mid_panel_separator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(bottom_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(game_parent_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -271,7 +313,7 @@ public class GameWindow extends javax.swing.JFrame {
                 .addGap(0, 0, 0)
                 .addComponent(mid_panel_separator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(game_parent_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(game_parent_panel, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(bottom_panel, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
