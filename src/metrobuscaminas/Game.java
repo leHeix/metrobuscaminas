@@ -11,7 +11,8 @@ import java.util.Random;
  *
  * @author Naim
  */
-public class Game {
+public class Game 
+{
     private GameWindow window;
     private MainMenu menu;
     private int row_count;
@@ -75,4 +76,5 @@ public class Game {
     
     public int get_columns() { return this.column_count; }
     public int get_rows() { return this.row_count; }
+    public int get_mine_count() { return this.mine_count; }
 }

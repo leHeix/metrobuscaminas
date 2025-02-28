@@ -4,7 +4,6 @@
  */
 package metrobuscaminas.interfaces;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GridBagLayout;
@@ -69,7 +68,7 @@ public class GameWindow extends javax.swing.JFrame {
         
         this.game_panel.setLayout(game_layout);
         int box_count = this.game.get_rows() * this.game.get_columns();
-        this.boxes = new List<javax.swing.JLabel>();
+        this.boxes = new List<>();
         
         layout_constraints.insets = new Insets(1, 1, 1, 1);
         layout_constraints.gridx = 0;
@@ -84,8 +83,6 @@ public class GameWindow extends javax.swing.JFrame {
             box_button.setSize(closed_box_image_icon.getIconWidth(), closed_box_image_icon.getIconHeight());
             box_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
             
-            layout_constraints.gridx++;
-            
             // Generar nueva fila al terminarse la actual
             if(i % this.game.get_columns() == 0)
             {
@@ -95,6 +92,9 @@ public class GameWindow extends javax.swing.JFrame {
             }
             
             game_layout.setConstraints(box_button, layout_constraints);
+            
+            layout_constraints.gridx++;
+            
             this.game_panel.add(box_button);
             this.boxes.insert_back(box_button);
         }
@@ -105,6 +105,7 @@ public class GameWindow extends javax.swing.JFrame {
         this.resize_icons();
         this.flag_count_label.setFont(counter_font);
         this.timer_label.setFont(counter_font);
+        this.flag_count_label.setText((this.game.get_mine_count() >= 100 ? "   100" : (this.game.get_mine_count() >= 10 ? "   0" + this.game.get_mine_count() : "   00" + this.game.get_mine_count())));
         
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent ev)
