@@ -105,7 +105,7 @@ public class GameWindow extends javax.swing.JFrame {
         this.resize_icons();
         this.flag_count_label.setFont(counter_font);
         this.timer_label.setFont(counter_font);
-        this.flag_count_label.setText((this.game.get_mine_count() >= 100 ? "   100" : (this.game.get_mine_count() >= 10 ? "   0" + this.game.get_mine_count() : "   00" + this.game.get_mine_count())));
+        this.update_flag_count(this.game.get_mine_count());
         
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent ev)
@@ -181,6 +181,19 @@ public class GameWindow extends javax.swing.JFrame {
         this.setVisible(false);
         this.dispose();
         this.main_menu.setVisible(true);
+    }
+    
+    private void update_flag_count(int count)
+    {
+        this.flag_count_label.setText(
+                (count >= 100 
+                    ? "   " + count
+                    : (count >= 10 
+                        ? "   0" + count 
+                        : "   00" + count
+                      )
+                )
+        );
     }
     /**
      * This method is called from within the constructor to initialize the form.
