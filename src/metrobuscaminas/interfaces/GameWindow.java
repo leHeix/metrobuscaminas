@@ -29,7 +29,6 @@ public class GameWindow extends javax.swing.JFrame {
     private BufferedImage side_border_image_buf;
     private MainMenu main_menu;
     private Game game;
-    private List<javax.swing.JLabel> boxes;
     
     /**
      * Creates new form Game
@@ -68,7 +67,6 @@ public class GameWindow extends javax.swing.JFrame {
         
         this.game_panel.setLayout(game_layout);
         int box_count = this.game.get_rows() * this.game.get_columns();
-        this.boxes = new List<>();
         
         layout_constraints.insets = new Insets(1, 1, 1, 1);
         layout_constraints.gridx = 0;
@@ -77,15 +75,25 @@ public class GameWindow extends javax.swing.JFrame {
         layout_constraints.gridy = 0;
         layout_constraints.fill = GridBagConstraints.HORIZONTAL;
         
+        int current_column = (int)'A';
+        int current_row = 0;
+        
         for(int i = 0; i < box_count; ++i)
         {
-            javax.swing.JLabel box_button = new javax.swing.JLabel(closed_box_image_icon);
+            Game.MineBox button = this.game.new MineBox(i);
+            javax.swing.JLabel box_button = button.get_button();
+            box_button.setIcon(closed_box_image_icon);
+            
             box_button.setSize(closed_box_image_icon.getIconWidth(), closed_box_image_icon.getIconHeight());
             box_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+            
+            current_column++;
             
             // Generar nueva fila al terminarse la actual
             if(i % this.game.get_columns() == 0)
             {
+                current_row++;
+                current_column = (int)'A';
                 layout_constraints.gridy++;
                 layout_constraints.gridx = 0;
                 layout_constraints.fill = GridBagConstraints.REMAINDER;
@@ -96,7 +104,8 @@ public class GameWindow extends javax.swing.JFrame {
             layout_constraints.gridx++;
             
             this.game_panel.add(box_button);
-            this.boxes.insert_back(box_button);
+            button.set_identifier((char)current_column, current_row);
+            this.game.register_box(button);
         }
         
         this.setSize(this.getWidth() + (closed_box_image_icon.getIconWidth() * this.game.get_columns()), this.getHeight() + (closed_box_image_icon.getIconHeight() * this.game.get_rows()));

@@ -4,6 +4,9 @@
  */
 package metrobuscaminas;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
 import metrobuscaminas.interfaces.*;
 import java.util.Random;
 
@@ -18,34 +21,69 @@ public class Game
     private int row_count;
     private int column_count;
     private int mine_count;
-    private List<Boolean> mines;
+    private List<MineBox> boxes;
+    
+    public class MineBox
+    {
+        private int index;
+        private char column;
+        private int row;
+        
+        private JLabel button;
+        private boolean mine; 
+        
+        public MineBox(int index)
+        {
+            this.index = index;
+            
+            this.button = new JLabel();
+            this.button.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e)
+                {
+                }
+            });
+        }
+        
+        public JLabel get_button() { return this.button; }
+        public void set_mine(boolean set) 
+        { 
+            this.mine = set;
+        }
+        public boolean is_mine() { return this.mine; }
+        public void set_identifier(char column, int row)
+        {
+            this.column = column;
+            this.row = row;
+        }
+        
+        public char get_column() { return this.column; }
+        public int get_row() { return this.row; }
+    }
     
     public Game(MainMenu menu, int row_count, int column_count, int mine_count)
     {
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
-        this.mines = new List<Boolean>();
+        this.boxes = new List<MineBox>();
         this.menu = menu;
-       
-        this.assign_mines();
     }
     
     public void initialize_window()
     {
         this.window = new GameWindow(menu, this);
+        this.assign_mines();
+    }
+    
+    public void register_box(MineBox box)
+    {
+        this.boxes.insert_back(box);
     }
     
     private void assign_mines()
     {
         int fixed_box_count = this.column_count * this.row_count;
         int box_count = fixed_box_count;
-        
-        while(box_count > 0)
-        {
-            this.mines.insert_back(fixed_box_count == this.mine_count ? true : false);
-            box_count--;
-        }
         
         if(fixed_box_count == this.mine_count)
             return;
@@ -61,9 +99,9 @@ public class Game
             {
                 box = rng.nextInt(fixed_box_count);
             }
-            while(this.mines.get(box).get() == true);
+            while(this.boxes.get(box).get().is_mine() == true);
             
-            this.mines.set(box, true);
+            this.boxes.get(box).get().set_mine(true);
             assigned_mines++;
         }
         while(assigned_mines < this.mine_count);
