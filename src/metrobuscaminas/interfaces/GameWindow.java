@@ -15,10 +15,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import metrobuscaminas.Utils;
 import metrobuscaminas.Game;
-import metrobuscaminas.List;
 
 /**
  *
@@ -27,6 +27,9 @@ import metrobuscaminas.List;
 public class GameWindow extends javax.swing.JFrame {
     private BufferedImage top_mid_image_buf;
     private BufferedImage side_border_image_buf;
+    private javax.swing.ImageIcon[] mine_icons;
+    private javax.swing.ImageIcon mine_icon_normal;
+    private javax.swing.ImageIcon mine_icon_pressed;
     private MainMenu main_menu;
     private Game game;
     
@@ -36,15 +39,43 @@ public class GameWindow extends javax.swing.JFrame {
     public GameWindow(MainMenu menu, Game parent) {
         top_mid_image_buf = this.load_image("border_hor.png");
         if(top_mid_image_buf == null)
-            return;
+            System.exit(1);
         
         side_border_image_buf = this.load_image("border_vert.png");
         if(side_border_image_buf == null)
-            return;
+            System.exit(1);
         
         BufferedImage closed_box_image_buf = this.load_image("closed.png");
         if(closed_box_image_buf == null)
-            return;
+            System.exit(1);
+        
+        BufferedImage open_box_image_buf = this.load_image("empty.png");
+        if(open_box_image_buf == null)
+            System.exit(1);
+        
+        BufferedImage mine_icon_image_buf = this.load_image("mine.png");
+        if(mine_icon_image_buf == null)
+            System.exit(1);
+        
+        this.mine_icon_normal = new javax.swing.ImageIcon(mine_icon_image_buf);
+        
+        BufferedImage mine_icon_red_image_buf = this.load_image("mine_red.png");
+        if(mine_icon_red_image_buf == null)
+            System.exit(1);
+        
+        this.mine_icon_pressed = new javax.swing.ImageIcon(mine_icon_red_image_buf);
+        
+        this.mine_icons = new javax.swing.ImageIcon[7];
+        this.mine_icons[0] = new javax.swing.ImageIcon(open_box_image_buf);
+        
+        for(int i = 1; i <= 6; ++i)
+        {
+            BufferedImage number_image = this.load_image(String.format("%d.png", i));
+            if(number_image == null)
+                return;
+            
+            mine_icons[i] = new javax.swing.ImageIcon(number_image);
+        }
         
         Font counter_font = this.load_font("digital-7.ttf");
         if(counter_font == null)
@@ -58,7 +89,7 @@ public class GameWindow extends javax.swing.JFrame {
         
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setResizable(false);
+        this.setResizable(true);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
         // Inicializar campo de minas
@@ -142,7 +173,7 @@ public class GameWindow extends javax.swing.JFrame {
         {
             img = ImageIO.read(getClass().getResourceAsStream("/metrobuscaminas/interfaces/assets/" + name));
         }
-        catch(IOException e)
+        catch(IOException | IllegalArgumentException e)
         {
             Utils.showMessageError("Error de carga de recursos", "No se pudo cargar " + name + ". Asegúrate de que los archivos del juego están íntegros.");
             return null;
@@ -204,6 +235,18 @@ public class GameWindow extends javax.swing.JFrame {
                 )
         );
     }
+    
+    public void reveal_box(JLabel box, int mine_count)
+    {
+        System.out.println("reveal_box(box, " + mine_count + ")");
+        box.setIcon(this.mine_icons[mine_count]);
+    }
+    
+    public void reveal_mine(JLabel box, boolean pressed)
+    {
+        box.setIcon(pressed ? this.mine_icon_pressed : this.mine_icon_normal);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

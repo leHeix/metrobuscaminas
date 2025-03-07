@@ -16,6 +16,7 @@ public class MetroBuscaminas {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.setProperty("org.graphstream.ui", "swing"); 
         MainMenu menu = new MainMenu();
     }
     
