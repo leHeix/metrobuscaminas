@@ -47,6 +47,8 @@ public class MainMenu extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         mine_count_range_label = new javax.swing.JLabel();
         mine_count_input = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        search_algorithm = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -55,13 +57,13 @@ public class MainMenu extends javax.swing.JFrame {
         main_title.setFont(new java.awt.Font("Comic Sans MS", 0, 24)); // NOI18N
         main_title.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         main_title.setText("MetroBuscaminas");
-        getContentPane().add(main_title, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 10, 390, 26));
+        getContentPane().add(main_title, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 390, 26));
 
         jLabel1.setText("Número de filas:");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 60, -1, -1));
 
         jSeparator1.setToolTipText("");
-        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 45, 205, 10));
+        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 40, 205, 10));
 
         row_count.setMaximumRowCount(8);
         row_count.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "3", "4", "5", "6", "7", "8", "9", "10" }));
@@ -90,20 +92,20 @@ public class MainMenu extends javax.swing.JFrame {
                 play_buttonActionPerformed(evt);
             }
         });
-        getContentPane().add(play_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 200, -1, -1));
+        getContentPane().add(play_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 260, -1, -1));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 30, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 20, Short.MAX_VALUE)
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 230, 30, 20));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 320, 30, 20));
 
         jLabel3.setText("Número de minas:");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 140, -1, -1));
@@ -119,6 +121,13 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
         getContentPane().add(mine_count_input, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 140, 50, -1));
+
+        jLabel4.setText("Algoritmo de búsqueda:");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
+
+        search_algorithm.setMaximumRowCount(2);
+        search_algorithm.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Depth-First Search", "Breadth-First Search" }));
+        getContentPane().add(search_algorithm, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -167,7 +176,7 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
         
-        Game game = new Game(this, row_count, column_count, mine_count);
+        Game game = new Game(this, row_count, column_count, mine_count, (this.search_algorithm.getSelectedIndex() == 0));
         game.initialize_window();
         this.setVisible(false);
         game.show_game_window();
@@ -213,6 +222,7 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel main_title;
@@ -220,5 +230,6 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JLabel mine_count_range_label;
     private javax.swing.JButton play_button;
     private javax.swing.JComboBox<String> row_count;
+    private javax.swing.JComboBox<String> search_algorithm;
     // End of variables declaration//GEN-END:variables
 }

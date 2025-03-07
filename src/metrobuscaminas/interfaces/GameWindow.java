@@ -91,7 +91,7 @@ public class GameWindow extends javax.swing.JFrame {
         
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setResizable(true);
+        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
         // Inicializar campo de minas

@@ -26,6 +26,7 @@ public class Game
     private Map<String, List<String>> adjacency_list;
     private AdjacencyListGraph graph;
     private boolean game_lost;
+    private boolean use_dfs;
     
     public class MineBox
     {
@@ -58,8 +59,15 @@ public class Game
                             Game.this.reveal_all_mines(MineBox.this);
                             return;
                         }
-
-                        Game.this.perform_search_dfs(MineBox.this);
+                        
+                        if(Game.this.use_dfs)
+                        {
+                            Game.this.perform_search_dfs(MineBox.this);
+                        }
+                        else
+                        {
+                            Game.this.perform_search_bfs(MineBox.this);
+                        }
                     }
                 }
             });
@@ -82,9 +90,10 @@ public class Game
         public String get_identifier() { return String.format("%c%d", this.column, this.row); }
     }
     
-    public Game(MainMenu menu, int row_count, int column_count, int mine_count)
+    public Game(MainMenu menu, int row_count, int column_count, int mine_count, boolean use_dfs)
     {
         this.game_lost = false;
+        this.use_dfs = use_dfs;
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
@@ -284,6 +293,11 @@ public class Game
                 }
             }
         }
+    }
+    
+    public void perform_search_bfs(MineBox starting)
+    {
+        
     }
     
     public void reveal_all_mines(MineBox pressed)
