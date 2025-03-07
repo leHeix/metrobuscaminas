@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.swing.SwingUtilities;
 import metrobuscaminas.interfaces.*;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
+
 /**
  *
  * @author Naim
@@ -245,7 +246,6 @@ public class Game
         Stack<String> stack = new Stack<>();
         stack.push(starting.get_identifier());
         
-        
         while(stack.size() != 0)
         {
             String current = stack.pop();
@@ -297,7 +297,60 @@ public class Game
     
     public void perform_search_bfs(MineBox starting)
     {
+        System.out.println("perform_search_bfs");
         
+        List<String> visited = new List<>();
+        
+        Queue<String> queue = new Queue<>();
+        queue.add(starting.get_identifier());
+        
+        while(queue.size() != 0)
+        {
+            String current = queue.poll();
+            
+            if(visited.has_value(current) == -1)
+            {
+                visited.insert_back(current);
+                
+                List<String> neighbors = this.adjacency_list.get(current).get();
+                Node<String> neighbor_node = neighbors.get_first_node();
+                int mine_count = 0;
+                
+                while(neighbor_node != null)
+                {
+                    MineBox neighbor = this.get_at(neighbor_node.getValue());
+                    if(neighbor.is_mine())
+                        mine_count++;
+                    
+                    neighbor_node = neighbor_node.getNext();
+                }
+                
+                MineBox current_box = this.get_at(current);
+                current_box.revealed = true;
+                
+                if(mine_count > 0)
+                {
+                    this.window.reveal_box(current_box.get_button(), mine_count);
+                    continue;
+                }
+                else
+                {
+                    this.window.reveal_box(current_box.get_button(), 0);
+                }
+                
+                
+                neighbor_node = neighbors.get_first_node();
+                while(neighbor_node != null)
+                {
+                    String neighbor = neighbor_node.getValue();
+                    if(visited.has_value(neighbor) == -1)
+                    {
+                        queue.add(neighbor);
+                    }
+                    neighbor_node = neighbor_node.getNext();
+                }
+            }
+        }
     }
     
     public void reveal_all_mines(MineBox pressed)
