@@ -146,7 +146,7 @@ public class GameWindow extends javax.swing.JFrame {
         
         this.resize_icons();
         this.flag_count_label.setFont(counter_font);
-        this.timer_label.setFont(counter_font);
+        this.clicks_label.setFont(counter_font);
         this.update_flag_count(this.game.get_mine_count());
         
         this.addComponentListener(new ComponentAdapter() {
@@ -235,7 +235,7 @@ public class GameWindow extends javax.swing.JFrame {
         this.main_menu.setVisible(true);
     }
     
-    private void update_flag_count(int count)
+    public void update_flag_count(int count)
     {
         this.flag_count_label.setText(
                 (count >= 100 
@@ -243,6 +243,22 @@ public class GameWindow extends javax.swing.JFrame {
                     : (count >= 10 
                         ? "   0" + count 
                         : "   00" + count
+                      )
+                )
+        );
+    }
+    
+    public void update_click_count(int count)
+    {
+        if(count > 999)
+            return;
+        
+        this.clicks_label.setText(
+                (count >= 100 
+                    ? count + "   "
+                    : (count >= 10 
+                        ? "0" + count + "   " 
+                        : "00" + count + "   "
                       )
                 )
         );
@@ -281,7 +297,7 @@ public class GameWindow extends javax.swing.JFrame {
         mid_panel_border_right = new javax.swing.JLabel();
         mid_panel = new javax.swing.JPanel();
         flag_count_label = new javax.swing.JLabel();
-        timer_label = new javax.swing.JLabel();
+        clicks_label = new javax.swing.JLabel();
         restart_button = new javax.swing.JLabel();
         mid_panel_separator = new javax.swing.JPanel();
         panel_separator_left = new javax.swing.JLabel();
@@ -329,12 +345,12 @@ public class GameWindow extends javax.swing.JFrame {
         flag_count_label.setText("   000");
         mid_panel.add(flag_count_label, java.awt.BorderLayout.WEST);
 
-        timer_label.setBackground(new java.awt.Color(170, 1, 0));
-        timer_label.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        timer_label.setForeground(new java.awt.Color(170, 1, 0));
-        timer_label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        timer_label.setText("000   ");
-        mid_panel.add(timer_label, java.awt.BorderLayout.EAST);
+        clicks_label.setBackground(new java.awt.Color(170, 1, 0));
+        clicks_label.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        clicks_label.setForeground(new java.awt.Color(170, 1, 0));
+        clicks_label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        clicks_label.setText("000   ");
+        mid_panel.add(clicks_label, java.awt.BorderLayout.EAST);
 
         restart_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         restart_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/metrobuscaminas/interfaces/assets/face_unpressed.png"))); // NOI18N
@@ -405,6 +421,7 @@ public class GameWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bottom_panel;
+    private javax.swing.JLabel clicks_label;
     private javax.swing.JLabel corner_bottom_left;
     private javax.swing.JLabel corner_bottom_mid;
     private javax.swing.JLabel corner_bottom_right;
@@ -425,7 +442,6 @@ public class GameWindow extends javax.swing.JFrame {
     private javax.swing.JLabel panel_separator_middle;
     private javax.swing.JLabel panel_separator_right;
     private javax.swing.JLabel restart_button;
-    private javax.swing.JLabel timer_label;
     private javax.swing.JPanel top_panel;
     // End of variables declaration//GEN-END:variables
 }

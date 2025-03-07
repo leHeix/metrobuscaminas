@@ -28,6 +28,7 @@ public class Game
     private AdjacencyListGraph graph;
     private boolean game_lost;
     private boolean use_dfs;
+    private int click_count;
     
     public class MineBox
     {
@@ -52,6 +53,9 @@ public class Game
                     if(Game.this.game_lost || MineBox.this.revealed)
                         return;
                     
+                    Game.this.click_count++;
+                    Game.this.window.update_click_count(Game.this.click_count);
+                                
                     if(SwingUtilities.isLeftMouseButton(e))
                     {
                         if(MineBox.this.mine)
@@ -95,6 +99,7 @@ public class Game
     {
         this.game_lost = false;
         this.use_dfs = use_dfs;
+        this.click_count = 0;
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
@@ -122,6 +127,10 @@ public class Game
     public void reset_game()
     {
         this.game_lost = false;
+        this.click_count = 0;
+        
+        this.window.update_click_count(0);
+        this.window.update_flag_count(this.mine_count);
         
         Node<MineBox> box_node = this.boxes.get_first_node();
         while(box_node != null)
@@ -296,9 +305,7 @@ public class Game
     }
     
     public void perform_search_bfs(MineBox starting)
-    {
-        System.out.println("perform_search_bfs");
-        
+    {        
         List<String> visited = new List<>();
         
         Queue<String> queue = new Queue<>();
