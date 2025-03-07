@@ -52,6 +52,6 @@ public class Map<Key, Value>
             return new Optional(EmptyOptionalValue.EMPTY);
         }
         
-        return new Optional(this.values.get(idx));
+        return this.values.get(idx);
     }
 }
