@@ -25,6 +25,7 @@ public class Game
     private List<MineBox> boxes;
     private Map<String, List<String>> adjacency_list;
     private AdjacencyListGraph graph;
+    private boolean game_lost;
     
     public class MineBox
     {
@@ -46,13 +47,14 @@ public class Game
             this.button.addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e)
                 {
-                    if(MineBox.this.revealed)
+                    if(Game.this.game_lost || MineBox.this.revealed)
                         return;
                     
                     if(SwingUtilities.isLeftMouseButton(e))
                     {
                         if(MineBox.this.mine)
                         {
+                            Game.this.game_lost = true;
                             Game.this.reveal_all_mines(MineBox.this);
                             return;
                         }
@@ -82,6 +84,7 @@ public class Game
     
     public Game(MainMenu menu, int row_count, int column_count, int mine_count)
     {
+        this.game_lost = false;
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
@@ -104,6 +107,25 @@ public class Game
                 + "node.marked {"
                 + "fill-color: red;"
                 + "}");
+    }
+    
+    public void reset_game()
+    {
+        this.game_lost = false;
+        
+        Node<MineBox> box_node = this.boxes.get_first_node();
+        while(box_node != null)
+        {
+            MineBox box = box_node.getValue();
+            
+            box.revealed = false;
+            box.mine = false;
+            this.window.reset_box(box.button);
+            
+            box_node = box_node.getNext();
+        }
+        
+        this.assign_mines();
     }
     
     public void initialize_window()
@@ -202,7 +224,6 @@ public class Game
             while(this.boxes.get(box).get().is_mine() == true);
             
             this.boxes.get(box).get().set_mine(true);
-            System.out.println("mine -> " + this.boxes.get(box).get().get_identifier());
             assigned_mines++;
         }
         while(assigned_mines < this.mine_count);
@@ -237,19 +258,8 @@ public class Game
                     neighbor_node = neighbor_node.getNext();
                 }
                 
-                Node<MineBox> box_node = this.boxes.get_first_node();
-                MineBox current_box = null;
-                
-                while(box_node != null)
-                {
-                    if(box_node.getValue().get_identifier().equals(current))
-                    {
-                        current_box = box_node.getValue();
-                        break;
-                    }
-                    
-                    box_node = box_node.getNext();
-                }
+                MineBox current_box = this.get_at(current);
+                current_box.revealed = true;
                 
                 if(mine_count > 0)
                 {
@@ -278,7 +288,6 @@ public class Game
     
     public void reveal_all_mines(MineBox pressed)
     {
-        System.out.println("reveal_all_mines(" + pressed.get_identifier() + ")");
         Node<MineBox> node = this.boxes.get_first_node();
         while(node != null)
         {

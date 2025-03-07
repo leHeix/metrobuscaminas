@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import metrobuscaminas.Utils;
 import metrobuscaminas.Game;
 
@@ -30,6 +31,7 @@ public class GameWindow extends javax.swing.JFrame {
     private javax.swing.ImageIcon[] mine_icons;
     private javax.swing.ImageIcon mine_icon_normal;
     private javax.swing.ImageIcon mine_icon_pressed;
+    private javax.swing.ImageIcon closed_box_image_icon;
     private MainMenu main_menu;
     private Game game;
     
@@ -82,7 +84,7 @@ public class GameWindow extends javax.swing.JFrame {
             return;
         
         counter_font = counter_font.deriveFont(32f);
-        javax.swing.ImageIcon closed_box_image_icon = new javax.swing.ImageIcon(closed_box_image_buf);
+        this.closed_box_image_icon = new javax.swing.ImageIcon(closed_box_image_buf);
         
         this.main_menu = menu;
         this.game = parent;
@@ -164,6 +166,16 @@ public class GameWindow extends javax.swing.JFrame {
                 }
             }
         });
+        
+        this.restart_button.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                if(SwingUtilities.isLeftMouseButton(e))
+                {
+                    GameWindow.this.game.reset_game();
+                }
+            }
+        });
     }
     
     private BufferedImage load_image(String name)
@@ -238,13 +250,17 @@ public class GameWindow extends javax.swing.JFrame {
     
     public void reveal_box(JLabel box, int mine_count)
     {
-        System.out.println("reveal_box(box, " + mine_count + ")");
         box.setIcon(this.mine_icons[mine_count]);
     }
     
     public void reveal_mine(JLabel box, boolean pressed)
     {
         box.setIcon(pressed ? this.mine_icon_pressed : this.mine_icon_normal);
+    }
+    
+    public void reset_box(JLabel box)
+    {
+        box.setIcon(this.closed_box_image_icon);
     }
     
     /**
