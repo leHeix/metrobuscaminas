@@ -112,4 +112,33 @@ public class List<T>
         
         node.setValue(value);
     }
+    
+    public Node<T> get_first_node() { return this.first; }
+    public Node<T> get_last_node() { return this.last; }
+    public T get_first() { return this.first.getValue(); }
+    public T get_last() { return this.last.getValue(); }
+    
+    public int has_value(T value)
+    {
+        Node<T> node = this.first;
+        int i = 0;
+        
+        while(node != null)
+        {
+            if(node.getValue().equals(value))
+                return i;
+            
+            node = node.getNext();
+            i++;
+        }
+        
+        return -1;
+    }
+    
+    public int get_first_index_of(T value)
+    {
+        return this.has_value(value);
+    }
+    
+    public int get_size() { return this.size; }
 }

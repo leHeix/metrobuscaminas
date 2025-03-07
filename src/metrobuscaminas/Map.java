@@ -45,8 +45,8 @@ public class Map<Key, Value>
     }
     
     public Optional<Value> get(Key key)
-    {
-        int idx = this.keys.has_value(key);
+    {        
+        int idx = this.keys.has_value(key);        
         if(idx == -1)
         {
             return new Optional(EmptyOptionalValue.EMPTY);
