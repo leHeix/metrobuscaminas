@@ -32,6 +32,7 @@ public class GameWindow extends javax.swing.JFrame {
     private javax.swing.ImageIcon mine_icon_normal;
     private javax.swing.ImageIcon mine_icon_pressed;
     private javax.swing.ImageIcon closed_box_image_icon;
+    private javax.swing.ImageIcon flag_image_icon;
     private MainMenu main_menu;
     private Game game;
     
@@ -67,6 +68,12 @@ public class GameWindow extends javax.swing.JFrame {
         
         this.mine_icon_pressed = new javax.swing.ImageIcon(mine_icon_red_image_buf);
         
+        BufferedImage flag_icon_image_buf = this.load_image("flag.png");
+        if(flag_icon_image_buf == null)
+            System.exit(1);
+        
+        this.flag_image_icon = new javax.swing.ImageIcon(flag_icon_image_buf);
+        
         this.mine_icons = new javax.swing.ImageIcon[7];
         this.mine_icons[0] = new javax.swing.ImageIcon(open_box_image_buf);
         
@@ -74,7 +81,7 @@ public class GameWindow extends javax.swing.JFrame {
         {
             BufferedImage number_image = this.load_image(String.format("%d.png", i));
             if(number_image == null)
-                return;
+                System.exit(1);
             
             mine_icons[i] = new javax.swing.ImageIcon(number_image);
         }
@@ -277,6 +284,11 @@ public class GameWindow extends javax.swing.JFrame {
     public void reset_box(JLabel box)
     {
         box.setIcon(this.closed_box_image_icon);
+    }
+    
+    public void set_box_flag(JLabel box, boolean flag)
+    {
+        box.setIcon(flag ? this.flag_image_icon : this.closed_box_image_icon);
     }
     
     /**

@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JLabel;
 import java.util.Random;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import metrobuscaminas.interfaces.*;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -29,6 +30,8 @@ public class Game
     private boolean game_lost;
     private boolean use_dfs;
     private int click_count;
+    private int flag_count;
+    private int clicked_boxes;
     
     public class MineBox
     {
@@ -40,11 +43,13 @@ public class Game
         private org.graphstream.graph.Node node;
         private boolean mine; 
         private boolean revealed;
+        private boolean has_flag;
         
         public MineBox(int index)
         {
             this.index = index;
             this.revealed = false;
+            this.has_flag = false;
             
             this.button = new JLabel();
             this.button.addMouseListener(new MouseAdapter() {
@@ -52,12 +57,14 @@ public class Game
                 {
                     if(Game.this.game_lost || MineBox.this.revealed)
                         return;
-                    
-                    Game.this.click_count++;
-                    Game.this.window.update_click_count(Game.this.click_count);
                                 
                     if(SwingUtilities.isLeftMouseButton(e))
                     {
+                        if(MineBox.this.has_flag)
+                            return;
+                        
+                        Game.this.add_click();
+                        
                         if(MineBox.this.mine)
                         {
                             Game.this.game_lost = true;
@@ -73,6 +80,30 @@ public class Game
                         {
                             Game.this.perform_search_bfs(MineBox.this);
                         }
+                    }
+                    else if(SwingUtilities.isRightMouseButton(e))
+                    {
+                        if(Game.this.flag_count <= 0 && !MineBox.this.has_flag)
+                            return;
+                        
+                        Game.this.add_click();
+                        
+                        MineBox.this.has_flag = !MineBox.this.has_flag;
+                        if(MineBox.this.has_flag)
+                        {
+                            Game.this.flag_count--;
+                            Game.this.clicked_boxes++;
+                        }
+                        else
+                        {
+                            Game.this.flag_count++;
+                            Game.this.clicked_boxes--;
+                        }
+                        
+                        Game.this.window.update_flag_count(Game.this.flag_count);
+                        Game.this.window.set_box_flag(MineBox.this.button, MineBox.this.has_flag);
+                        
+                        Game.this.check_for_victory();
                     }
                 }
             });
@@ -100,9 +131,11 @@ public class Game
         this.game_lost = false;
         this.use_dfs = use_dfs;
         this.click_count = 0;
+        this.clicked_boxes = 0;
         this.row_count = row_count;
         this.column_count = column_count;
         this.mine_count = mine_count;
+        this.flag_count = mine_count;
         this.boxes = new List<MineBox>();
         this.menu = menu;
         this.adjacency_list = new Map<>();
@@ -128,6 +161,8 @@ public class Game
     {
         this.game_lost = false;
         this.click_count = 0;
+        this.flag_count = this.mine_count;
+        this.clicked_boxes = 0;
         
         this.window.update_click_count(0);
         this.window.update_flag_count(this.mine_count);
@@ -139,6 +174,7 @@ public class Game
             
             box.revealed = false;
             box.mine = false;
+            box.has_flag = false;
             this.window.reset_box(box.button);
             
             box_node = box_node.getNext();
@@ -282,11 +318,13 @@ public class Game
                 if(mine_count > 0)
                 {
                     this.window.reveal_box(current_box.get_button(), mine_count);
+                    this.clicked_boxes++;
                     continue;
                 }
                 else
                 {
                     this.window.reveal_box(current_box.get_button(), 0);
+                    this.clicked_boxes++;
                 }
                 
                 
@@ -302,6 +340,8 @@ public class Game
                 }
             }
         }
+        
+        this.check_for_victory();
     }
     
     public void perform_search_bfs(MineBox starting)
@@ -333,16 +373,24 @@ public class Game
                 }
                 
                 MineBox current_box = this.get_at(current);
-                current_box.revealed = true;
                 
                 if(mine_count > 0)
                 {
                     this.window.reveal_box(current_box.get_button(), mine_count);
+                    this.clicked_boxes++;
+                    current_box.revealed = true;
                     continue;
                 }
                 else
                 {
-                    this.window.reveal_box(current_box.get_button(), 0);
+                    if(!current_box.has_flag)
+                    {
+                        this.window.reveal_box(current_box.get_button(), 0);
+                        this.clicked_boxes++;
+                        current_box.revealed = true;
+                    }
+                    else
+                        continue;
                 }
                 
                 
@@ -358,6 +406,8 @@ public class Game
                 }
             }
         }
+        
+        this.check_for_victory();
     }
     
     public void reveal_all_mines(MineBox pressed)
@@ -371,6 +421,42 @@ public class Game
             }
             
             node = node.getNext();
+        }
+    }
+    
+    public void add_click()
+    {
+        this.click_count++;
+        this.window.update_click_count(this.click_count);
+    }
+    
+    public void check_for_victory()
+    {
+        if(this.clicked_boxes >= (this.get_columns() * this.get_rows()))
+        {
+            Node<MineBox> box_node = this.boxes.get_first_node();
+            
+            int correct_flags = 0;
+            
+            while(box_node != null)
+            {
+                MineBox box = box_node.getValue();
+                
+                if(box.has_flag && box.mine)
+                    correct_flags++;
+                else if(!box.revealed)
+                    return;
+                
+                box_node = box_node.getNext();
+            }
+            
+            if(correct_flags == this.mine_count)
+            {
+                this.game_lost = true;
+                
+                // Anunciar mensaje de victoria
+                JOptionPane.showMessageDialog(null, "¡Victoria! Limpiaste el tablero correctamente. Presiona X para cambiar las opciones o el botón carita para volver a empezar.", "¡Enhorabuena!", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
     
