@@ -24,6 +24,9 @@ public class Queue<T>
     
     public T poll()
     {
+        if(this.container.get_size() == 0)
+            return null;
+        
         T value = this.container.get_first();
         this.container.remove_front();
         return value;
