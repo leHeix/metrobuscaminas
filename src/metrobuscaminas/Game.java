@@ -313,18 +313,24 @@ public class Game
                 }
                 
                 MineBox current_box = this.get_at(current);
-                current_box.revealed = true;
                 
                 if(mine_count > 0)
                 {
                     this.window.reveal_box(current_box.get_button(), mine_count);
                     this.clicked_boxes++;
+                    current_box.revealed = true;
                     continue;
                 }
                 else
-                {
-                    this.window.reveal_box(current_box.get_button(), 0);
-                    this.clicked_boxes++;
+                {                    
+                    if(!current_box.has_flag)
+                    {
+                        this.window.reveal_box(current_box.get_button(), 0);
+                        this.clicked_boxes++;
+                        current_box.revealed = true;
+                    }
+                    else
+                        continue;
                 }
                 
                 
