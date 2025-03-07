@@ -24,6 +24,9 @@ public class Stack<T>
     
     public T pop()
     {
+        if(this.container.get_size() <= 0)
+            return null;
+        
         T value = this.container.get_last();
         this.container.remove_back();
         return value;
