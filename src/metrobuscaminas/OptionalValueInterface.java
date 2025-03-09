@@ -5,7 +5,9 @@
 package metrobuscaminas;
 
 /**
- *
+ * Interfaz utilizada para EmptyOptionalValue y OptionalValue.
+ * 
+ * @version 26/02/2025
  * @author Gabriel
  */
 public interface OptionalValueInterface<T> 

@@ -22,7 +22,9 @@ import metrobuscaminas.Utils;
 import metrobuscaminas.Game;
 
 /**
- *
+ * Clase encargada de manejar la ventana del juego y el tablero.
+ * 
+ * @version 09/03/2025
  * @author Nikos
  */
 public class GameWindow extends javax.swing.JFrame {
@@ -37,7 +39,7 @@ public class GameWindow extends javax.swing.JFrame {
     private Game game;
     
     /**
-     * Creates new form Game
+     * Carga los assets y crea el tablero del juego.
      */
     public GameWindow(MainMenu menu, Game parent) {
         top_mid_image_buf = this.load_image("border_hor.png");
@@ -162,6 +164,11 @@ public class GameWindow extends javax.swing.JFrame {
         });
     }
     
+    /**
+     * Carga una imagen de los assets del juego.
+     * @param name Nombre de la imagen con su extensión.
+     * @return Objeto BufferedImage de la imagen cargada, o null si no se pudo cargar.
+     */
     private BufferedImage load_image(String name)
     {
         BufferedImage img;
@@ -178,6 +185,11 @@ public class GameWindow extends javax.swing.JFrame {
         return img;
     }
     
+    /**
+     * Carga una fuente de los assets del juego.
+     * @param name Nombre de la fuente con su extensión.
+     * @return Objeto Font de la fuente cargada, o null si no se pudo cargar.
+     */
     private Font load_font(String name)
     {
         try
@@ -191,6 +203,9 @@ public class GameWindow extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Calcula las dimensiones necesarias para llenar el tablero apropiadamente con los iconos.
+     */
     private void resize_icons()
     {
         Image mid_panel_bar = top_mid_image_buf.getScaledInstance(this.getSize().width - corner_top_right.getIcon().getIconWidth() - 40, corner_top_middle.getHeight(), Image.SCALE_SMOOTH);
@@ -212,6 +227,9 @@ public class GameWindow extends javax.swing.JFrame {
         corner_bottom_mid.setIcon(mid_panel_imageicon);
     }
     
+    /**
+     * Genera el panel del juego, todas las casillas y las registra en la clase Game.
+     */
     public void generate_game_panel()
     {
         // Inicializar campo de minas
@@ -263,6 +281,9 @@ public class GameWindow extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Cierra la ventana del juego.
+     */
     private void close_game()
     {
         this.setVisible(false);
@@ -270,6 +291,10 @@ public class GameWindow extends javax.swing.JFrame {
         this.main_menu.setVisible(true);
     }
     
+    /**
+     * Actualiza el contador de banderas del panel.
+     * @param count La cantidad de banderas a mostrar.
+     */
     public void update_flag_count(int count)
     {
         this.flag_count_label.setText(
@@ -283,6 +308,10 @@ public class GameWindow extends javax.swing.JFrame {
         );
     }
     
+    /**
+     * Actualiza el contador de clicks del panel.
+     * @param count La cantidad de clicks a mostrar.
+     */
     public void update_click_count(int count)
     {
         if(count > 999)
@@ -299,26 +328,50 @@ public class GameWindow extends javax.swing.JFrame {
         );
     }
     
+    /**
+     * Revela una casilla en el tablero.
+     * @param box El objeto interno de la casilla a revelar.
+     * @param mine_count La cantidad de minas cercanas a mostrar en la casilla, o 0 si está vacía.
+     */
     public void reveal_box(JLabel box, int mine_count)
     {
         box.setIcon(this.mine_icons[mine_count]);
     }
     
+    /**
+     * Revela una mina en el tablero.
+     * @param box El objeto interno de la casilla a revelar.
+     * @param pressed true si la mina fue presionada.
+     */
     public void reveal_mine(JLabel box, boolean pressed)
     {
         box.setIcon(pressed ? this.mine_icon_pressed : this.mine_icon_normal);
     }
     
+    /**
+     * Reinicia una casilla del tablero.
+     * @param box El objeto interno de la casilla a revelar.
+     */
     public void reset_box(JLabel box)
     {
         box.setIcon(this.closed_box_image_icon);
     }
     
+    /**
+     * Asigna una bandera a una casilla en el tablero.
+     * @param box El objeto interno de la casilla.
+     * @param flag true si se le asigna una bandera, false de lo contrario.
+     */
     public void set_box_flag(JLabel box, boolean flag)
     {
         box.setIcon(flag ? this.flag_image_icon : this.closed_box_image_icon);
     }
     
+    /**
+     * Obtiene el número de minas cercanas a la casilla por su icono.
+     * @param box El objeto interno de la casilla.
+     * @return La cantidad de minas cercanas a la casilla, 0 si no hay ninguna o -1 si el icono no coincide con ninguno.
+     */
     public int get_box_number_from_icon(JLabel box)
     {
         if(box.getIcon().equals(this.closed_box_image_icon))

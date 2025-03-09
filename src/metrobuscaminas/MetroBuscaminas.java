@@ -7,13 +7,16 @@ package metrobuscaminas;
 import metrobuscaminas.interfaces.MainMenu;
 
 /**
- *
+ * Clase principal, encargada de abrir la ventana del menú.
+ * 
+ * @version 07/03/2025
  * @author Naim
  */
-public class MetroBuscaminas {
-
+public class MetroBuscaminas 
+{
     /**
-     * @param args the command line arguments
+     * Función llamada al inicio del programa.
+     * @param args Argumentos de la línea de comandos.
      */
     public static void main(String[] args) {
         System.setProperty("org.graphstream.ui", "swing"); 

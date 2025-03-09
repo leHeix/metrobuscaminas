@@ -20,7 +20,9 @@ import metrobuscaminas.interfaces.*;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 
 /**
- *
+ * Clase principal del juego. Encargada de manejar todos los datos y acciones correspondientes al tablero.
+ * 
+ * @version 09/03/2025
  * @author Naim
  */
 public class Game 
@@ -40,6 +42,12 @@ public class Game
     private int clicked_boxes;
     private Queue<MineBox> clicked_track;
     
+    /**
+     * Clase correspondiente a cada casilla en el tablero.
+     * 
+     * @version 09/03/2025
+     * @author Nikos
+     */
     public class MineBox
     {
         private int index;
@@ -52,6 +60,10 @@ public class Game
         private boolean revealed;
         private boolean has_flag;
         
+        /**
+         * Constructor de la clase MineBox. Genera la casilla y registra los eventos necesarios en el tablero. 
+         * @param index Índice de la casilla.
+         */
         public MineBox(int index)
         {
             this.index = index;
@@ -117,23 +129,65 @@ public class Game
             });
         }
         
+        /**
+         * Función para obtener el objeto JLabel de la casilla en el tablero.
+         * @return El objeto JLabel de la casilla en el tablero.
+         */
         public JLabel get_button() { return this.button; }
+        
+        /**
+         * Función para asignar mina a la casila.
+         * @param set true si la casilla es una mina, false de lo contrario.
+         */
         public void set_mine(boolean set) 
         { 
             this.mine = set;
         }
+        
+        /**
+         * Función para obtener si la casilla contiene una mina.
+         * @return true si la casilla contiene una mina, false de lo contrario.
+         */
         public boolean is_mine() { return this.mine; }
+        
+        /**
+         * Función para asignar el identificador de la casilla.
+         * @param column El caracter de la columna en la que se encuentra la casilla.
+         * @param row El número de la fila en la que se encuentra la casilla.
+         */
         public void set_identifier(char column, int row)
         {
             this.column = column;
             this.row = row;
         }
         
+        /**
+         * Función para obtener la columna en la que se encuentra la casilla.
+         * @return El caracter de la columna en la que se encuentra la casilla.
+         */
         public char get_column() { return this.column; }
+        
+        /**
+         * Función para obtener la fila en la que se encuentra la casilla.
+         * @return El número de la fila donde se encuentra la casilla.
+         */
         public int get_row() { return this.row; }
+        
+        /**
+         * Función para obtener el identificador (columnafila) donde se encuentra la casilla.
+         * @return El identificador, como string, donde se encuentra la casilla.
+         */
         public String get_identifier() { return String.format("%c%d", this.column, this.row); }
     }
     
+    /**
+     * Constructor de la clase Game. Asigna los datos necesarios a las variables internas.
+     * @param menu El objeto del menú principal.
+     * @param row_count La cantidad de filas del tablero.
+     * @param column_count La cantidad de columnas del tablero.
+     * @param mine_count La cantidad de minas a asignar.
+     * @param use_dfs true si se desea utilizar el algoritmo Depth-First Search, false para usar Breadth-First Search
+     */
     public Game(MainMenu menu, int row_count, int column_count, int mine_count, boolean use_dfs)
     {
         this.game_lost = false;
@@ -166,6 +220,11 @@ public class Game
                 + "}");
     }
     
+    /**
+     * Función para cargar el tablero y estado del juego desde un archivo guardado.
+     * @param f El objeto File del archivo guardado
+     * @return true si se pudo cargar éxitosamente, false de lo contrario.
+     */
     public boolean load_from_file(File f)
     {
         try
@@ -247,6 +306,9 @@ public class Game
         return true;
     }
     
+    /**
+     * Función para reiniciar el juego al estado inicial.
+     */
     public void reset_game()
     {
         this.game_lost = false;
@@ -273,6 +335,10 @@ public class Game
         this.assign_mines();
     }
     
+    /**
+     * Función para inicializar la ventana del juego y lista de adyacencias.
+     * @param assign_mines true si se desea asignar nuevas minas a casillas.
+     */
     public void initialize_window(boolean assign_mines)
     {
         this.window = new GameWindow(menu, this);
@@ -339,6 +405,11 @@ public class Game
         this.graph.display();
     }
     
+    /**
+     * Función de intercomunicación entre la clase GameWindow y Game. Llamada desde
+     * GameWindow para registrar una nueva casilla creada en el tablero.
+     * @param box El objeto MineBox a registrar en el juego.
+     */
     public void register_box(MineBox box)
     {
         this.boxes.insert_back(box);
@@ -349,6 +420,9 @@ public class Game
         box.node.setAttribute("ui.label", node);
     }
     
+    /**
+     * Función para asignar las casillas que contengan minas.
+     */
     private void assign_mines()
     {
         int fixed_box_count = this.column_count * this.row_count;
@@ -375,6 +449,12 @@ public class Game
         while(assigned_mines < this.mine_count);
     }
     
+    /**
+     * Función para revelar las casillas del tablero, partiendo de una casilla
+     * inicial, utilizando el algoritmo Depth-First Search.
+     * 
+     * @param starting El objeto de casilla del cual empezar el algoritmo.
+     */    
     public void perform_search_dfs(MineBox starting)
     {
         List<String> visited = new List<>();
@@ -441,6 +521,12 @@ public class Game
         this.check_for_victory();
     }
     
+    /**
+     * Función para revelar las casillas del tablero, partiendo de una casilla
+     * inicial, utilizando el algoritmo Breadth-First Search.
+     * 
+     * @param starting El objeto de casilla del cual empezar el algoritmo.
+     */
     public void perform_search_bfs(MineBox starting)
     {        
         List<String> visited = new List<>();
@@ -507,6 +593,10 @@ public class Game
         this.check_for_victory();
     }
     
+    /**
+     * Función para revelar todas las minas del tablero.
+     * @param pressed Objeto de la casilla conteniendo la mina que fue presionada por el usuario. null si no se presionó ninguna.
+     */
     public void reveal_all_mines(MineBox pressed)
     {
         Node<MineBox> node = this.boxes.get_first_node();
@@ -521,12 +611,18 @@ public class Game
         }
     }
     
+    /**
+     * Función para añadir un click al contador de clicks del panel de juego.
+     */
     public void add_click()
     {
         this.click_count++;
         this.window.update_click_count(this.click_count);
     }
     
+    /**
+     * Función para determinar si el tablero fue limpiado con éxito por el usuario.
+     */
     public void check_for_victory()
     {
         if(this.clicked_boxes >= (this.get_columns() * this.get_rows()))
@@ -557,16 +653,39 @@ public class Game
         }
     }
     
+    /**
+     * Función para mostrar la ventana del juego.
+     */
     public void show_game_window()
     {
         this.window.setVisible(true);
     }
     
+    /**
+     * Función para obtener la cantidad de columnas en el tablero.
+     * @return La cantidad de columnas en el tablero.
+     */
     public int get_columns() { return this.column_count; }
+    
+    /**
+     * Función para obtener la cantidad de filas en el tablero.
+     * @return La cantidad de filas en el tablero.
+     */
     public int get_rows() { return this.row_count; }
+    
+    /**
+     * Función para obtener la cantidad de minas en el tablero.
+     * @return La cantidad de minas en el tablero.
+     */
     public int get_mine_count() { return this.mine_count; }
     
-    // 'A', 1 -> return MineBox at index 0
+    /**
+     * Función para obtener el objeto de casilla ubicado en una posición del tablero.
+     * 
+     * @param column La columna en la que se encuentra la casilla
+     * @param row La fila en la que se encuentra la casilla
+     * @return El objeto MineBox encontrado, o null si no existe.
+     */
     public MineBox get_at(char column, int row)
     {
         char upper_column = Character.toUpperCase(column); // fail-safe para casos como 'a', 'b'
@@ -584,6 +703,12 @@ public class Game
         return null;
     }
     
+    /**
+     * Función para obtener el objeto de casilla ubicado en una posición del tablero.
+     * 
+     * @param identifier El identificador (string que contiene "columna" + "fila") de la casilla
+     * @return El objeto MineBox correspondiente al identificador, o null si no existe.
+     */
     public MineBox get_at(String identifier)
     {
         Node<MineBox> mb_node = this.boxes.get_first_node();
@@ -600,6 +725,13 @@ public class Game
         return null;
     }
     
+    /**
+     * Función para comprobar si el lugar en la columna y fila es válido para el tablero.
+     * 
+     * @param column El caracter de columna en el tablero
+     * @param row El número de fila en el tablero
+     * @return true si la casilla es válida, false de lo contrario.
+     */
     public boolean is_valid_box(char column, int row)
     {        
         if(column < 'A' || column >= 'A' + this.get_columns())
@@ -611,8 +743,16 @@ public class Game
         return true;
     }
     
+    /**
+     * Función que indica si la partida ya terminó.
+     * @return true si el jugador limpió el tablero o detono una mina.
+     */
     public boolean has_ended() { return this.game_lost; }
     
+    /**
+     * Función para guardar el estado actual de la partida a un archivo CSV introducido por el usuario
+     * @return true si se pudo guardar exitosamente al archivo, false de lo contrario.
+     */
     public boolean save_to_file()
     {
         JFileChooser chooser = new JFileChooser();

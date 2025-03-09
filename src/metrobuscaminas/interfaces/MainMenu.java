@@ -13,12 +13,15 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- *
+ * Clase que maneja el menú principal y sus opciones.
+ * 
+ * @version 09/03/2025
  * @author Naim
  */
-public class MainMenu extends javax.swing.JFrame {
+public class MainMenu extends javax.swing.JFrame 
+{
     /**
-     * Creates new form MainMenu
+     * Inicializa la ventana del menú principal.
      */
     public MainMenu() {
         initComponents();
@@ -143,20 +146,38 @@ public class MainMenu extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Evento cuando se cambia la cantidad de filas seleccionada. 
+     * Ajusta el texto que indica el rango válido de minas.
+     * @param evt 
+     */
     private void row_countActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_row_countActionPerformed
         int max_mine_count = (this.column_count.getSelectedIndex() + 3) * (this.row_count.getSelectedIndex() + 3);
         this.mine_count_range_label.setText("Rango: 1-" + max_mine_count);
     }//GEN-LAST:event_row_countActionPerformed
 
+    /**
+     * Evento cuando se cambia la cantidad de columnas seleccionada. 
+     * Ajusta el texto que indica el rango válido de minas.
+     * @param evt 
+     */
     private void column_countActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_column_countActionPerformed
         int max_mine_count = (this.column_count.getSelectedIndex() + 3) * (this.row_count.getSelectedIndex() + 3);
         this.mine_count_range_label.setText("Rango: 1-" + max_mine_count);
     }//GEN-LAST:event_column_countActionPerformed
 
+    /**
+     * Evento cuando cambia el input de minas.
+     * @param evt 
+     */
     private void mine_count_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mine_count_inputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_mine_count_inputActionPerformed
 
+    /**
+     * Evento cuando se presiona el botón de Jugar. Inicia la partida.
+     * @param evt 
+     */
     private void play_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_play_buttonActionPerformed
         int row_count = this.row_count.getSelectedIndex() + 3;
         int column_count = this.column_count.getSelectedIndex() + 3;
@@ -193,6 +214,11 @@ public class MainMenu extends javax.swing.JFrame {
         game.show_game_window();
     }//GEN-LAST:event_play_buttonActionPerformed
 
+    /**
+     * Evento cuando se presiona el botón de Cargar partida. Carga la partida desde un
+     * archivo especificado por el usuario.
+     * @param evt 
+     */
     private void load_game_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_load_game_buttonActionPerformed
         Game game = new Game(this, 0, 0, 0, false);
         
@@ -215,41 +241,6 @@ public class MainMenu extends javax.swing.JFrame {
             game.show_game_window();
         }
     }//GEN-LAST:event_load_game_buttonActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainMenu().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> column_count;

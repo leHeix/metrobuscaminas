@@ -8,10 +8,17 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
- *
- * @author verde
+ * Clase de utilidades.
+ * 
+ * @version 16/02/2025
+ * @author Naim
  */
 public class Utils {
+    /**
+     * Muestra un mensaje de error en la pantalla.
+     * @param title Título de la ventana del mensaje.
+     * @param message Cuerpo del mensaje.
+     */
     public static void showMessageError(String title, String message)
     {
         JOptionPane optionPane = new JOptionPane(message, JOptionPane.ERROR_MESSAGE);    
