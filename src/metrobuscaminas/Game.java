@@ -6,10 +6,16 @@ package metrobuscaminas;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import javax.swing.JLabel;
 import java.util.Random;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import metrobuscaminas.interfaces.*;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 
@@ -32,6 +38,7 @@ public class Game
     private int click_count;
     private int flag_count;
     private int clicked_boxes;
+    private Queue<MineBox> clicked_track;
     
     public class MineBox
     {
@@ -50,6 +57,7 @@ public class Game
             this.index = index;
             this.revealed = false;
             this.has_flag = false;
+            this.mine = false;
             
             this.button = new JLabel();
             this.button.addMouseListener(new MouseAdapter() {
@@ -137,6 +145,7 @@ public class Game
         this.mine_count = mine_count;
         this.flag_count = mine_count;
         this.boxes = new List<MineBox>();
+        this.clicked_track = new Queue<>();
         this.menu = menu;
         this.adjacency_list = new Map<>();
         this.graph = new AdjacencyListGraph("GRID", false, true);
@@ -155,6 +164,87 @@ public class Game
                 + "node.marked {"
                 + "fill-color: red;"
                 + "}");
+    }
+    
+    public boolean load_from_file(File f)
+    {
+        try
+        {
+           BufferedReader br = new BufferedReader(new FileReader(f));
+           String line = br.readLine();
+           String[] values = line.split(",");
+           
+           this.row_count = Integer.parseInt(values[0]);
+           this.column_count = Integer.parseInt(values[1]);
+           this.click_count = Integer.parseInt(values[2]);
+           this.clicked_boxes = Integer.parseInt(values[3]);
+           this.use_dfs = (Integer.parseInt(values[4]) == 1);
+           
+           this.initialize_window(false);
+           this.window.update_click_count(this.click_count);
+           
+           Node<MineBox> box_node = this.boxes.get_first_node();
+           
+           for(int i = 5; i < (this.row_count * this.column_count) + 5 && box_node != null; ++i)
+           {
+               MineBox box = box_node.getValue();
+               
+               switch(values[i])
+               {
+                   case "0":
+                   {
+                       box.revealed = false;
+                       break;
+                   }
+                   case "1":
+                   case "2":
+                   case "3":
+                   case "4":
+                   case "5":
+                   case "6":
+                   case "7":
+                   {
+                       box.revealed = true;
+                       this.window.reveal_box(box.button, Integer.parseInt(values[i]) - 1);
+                       break;
+                   }
+                   case "8":
+                   {
+                       box.mine = true;
+                       this.mine_count++;
+                       this.flag_count++;
+                       break;
+                   }
+                   case "9":
+                   {
+                       box.has_flag = true;
+                       box.mine = false;
+                       this.flag_count--;
+                       this.window.set_box_flag(box.button, true);
+                       break;
+                   }
+                   case "10":
+                   {
+                       box.has_flag = true;
+                       box.mine = true;
+                       this.mine_count++;
+                       this.flag_count--;
+                       this.window.set_box_flag(box.button, true);
+                       break;
+                   }
+               }
+               
+               box_node = box_node.getNext();
+           }
+           
+           this.window.update_flag_count(this.flag_count);
+        }
+        catch(java.io.IOException | NumberFormatException e)
+        {
+            return false;
+        }
+        
+        return true;
     }
     
     public void reset_game()
@@ -183,11 +273,12 @@ public class Game
         this.assign_mines();
     }
     
-    public void initialize_window()
+    public void initialize_window(boolean assign_mines)
     {
         this.window = new GameWindow(menu, this);
         
-        this.assign_mines();
+        if(assign_mines)
+            this.assign_mines();
         
         Node<MineBox> mb_node = this.boxes.get_first_node();
         
@@ -518,5 +609,80 @@ public class Game
             return false;
         
         return true;
+    }
+    
+    public boolean has_ended() { return this.game_lost; }
+    
+    public boolean save_to_file()
+    {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivo CSV", "csv");
+        chooser.setFileFilter(filter);
+        chooser.setMultiSelectionEnabled(false);
+        
+        int return_val = chooser.showSaveDialog(null);
+        if(return_val == JFileChooser.APPROVE_OPTION)
+        {
+            File f = chooser.getSelectedFile();
+            
+            /*
+                Estructura del archivo de juego, en CSV:
+                [cantidad_filas],[cantidad_columnas],[numero_clicks],[casillas_descubiertas],[algoritmo_de_busqueda],[array_casillas],[array_recorrido]
+                
+                algoritmo_de_busqueda puede ser 1 (Depth-First Search) o 0 (Breadth-First Search)
+                array_casillas contiene toda la información sobre las casillas, almacenadas en estados (números) que corresponden a:
+                0 -> casilla cerrada
+                1 -> casilla abierta, vacía
+                2, 7 -> casilla abierta, número del 1 al 7
+                8 -> mina
+                9 -> bandera, casilla vacía
+                10 -> bandera, casilla mina
+            
+                array_recorrido contiene, ordenadamente, el recorrido de casillas que ha presionado el jugador
+            */
+            
+            String data = String.format("%d,%d,%d,%d,%d,", this.row_count, this.column_count, this.click_count, this.clicked_boxes, (this.use_dfs ? 1 : 0));
+            
+            Node<MineBox> box_node = this.boxes.get_first_node();
+            while(box_node != null)
+            {
+                MineBox box = box_node.getValue();
+                
+                if(box.mine)
+                {
+                    if(box.has_flag)
+                        data += "10,";
+                    else
+                        data += "8,";
+                }
+                else if(box.has_flag && !box.mine)
+                    data += "9,";
+                else if(!box.revealed)
+                    data += "0,";
+                else if(box.revealed)
+                {
+                    int box_number = this.window.get_box_number_from_icon(box.get_button());
+                    data += String.format("%d,", box_number + 1);
+                }
+                
+                box_node = box_node.getNext();
+            }
+            
+            try
+            {
+                PrintWriter writer = new PrintWriter(f, "UTF-8");
+                writer.write(data);
+                writer.close();
+            }
+            catch(java.io.FileNotFoundException | java.io.UnsupportedEncodingException e)
+            {
+                Utils.showMessageError("Error al guardar partida", "No se pudo escribir al archivo.");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
 }

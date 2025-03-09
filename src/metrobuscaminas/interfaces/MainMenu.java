@@ -9,6 +9,8 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 import metrobuscaminas.Utils;
 import metrobuscaminas.Game;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -49,6 +51,7 @@ public class MainMenu extends javax.swing.JFrame {
         mine_count_input = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         search_algorithm = new javax.swing.JComboBox<>();
+        load_game_button = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -92,7 +95,7 @@ public class MainMenu extends javax.swing.JFrame {
                 play_buttonActionPerformed(evt);
             }
         });
-        getContentPane().add(play_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 260, -1, -1));
+        getContentPane().add(play_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 260, -1, -1));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -128,6 +131,14 @@ public class MainMenu extends javax.swing.JFrame {
         search_algorithm.setMaximumRowCount(2);
         search_algorithm.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Depth-First Search", "Breadth-First Search" }));
         getContentPane().add(search_algorithm, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, -1, -1));
+
+        load_game_button.setText("Cargar partida");
+        load_game_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                load_game_buttonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(load_game_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -177,10 +188,33 @@ public class MainMenu extends javax.swing.JFrame {
         });
         
         Game game = new Game(this, row_count, column_count, mine_count, (this.search_algorithm.getSelectedIndex() == 0));
-        game.initialize_window();
+        game.initialize_window(true);
         this.setVisible(false);
         game.show_game_window();
     }//GEN-LAST:event_play_buttonActionPerformed
+
+    private void load_game_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_load_game_buttonActionPerformed
+        Game game = new Game(this, 0, 0, 0, false);
+        
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivo CSV", "csv");
+        chooser.setFileFilter(filter);
+        chooser.setMultiSelectionEnabled(false);
+        
+        int return_val = chooser.showOpenDialog(null);
+        if(return_val == JFileChooser.APPROVE_OPTION)
+        {
+            boolean result = game.load_from_file(chooser.getSelectedFile());
+            if(!result)
+            {
+                Utils.showMessageError("Error de carga de partida", "No se pudo cargar la partida del archivo seleccionado.");
+                return;
+            }
+            
+            this.setVisible(false);
+            game.show_game_window();
+        }
+    }//GEN-LAST:event_load_game_buttonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -225,6 +259,7 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JButton load_game_button;
     private javax.swing.JLabel main_title;
     private javax.swing.JTextField mine_count_input;
     private javax.swing.JLabel mine_count_range_label;

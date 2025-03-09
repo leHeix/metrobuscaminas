@@ -101,52 +101,7 @@ public class GameWindow extends javax.swing.JFrame {
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
-        // Inicializar campo de minas
-        GridBagLayout game_layout = new GridBagLayout();
-        GridBagConstraints layout_constraints = new GridBagConstraints();
-        
-        this.game_panel.setLayout(game_layout);
-        int box_count = this.game.get_rows() * this.game.get_columns();
-        
-        layout_constraints.insets = new Insets(1, 1, 1, 1);
-        layout_constraints.gridx = 0;
-        layout_constraints.weightx = 0.0;
-        layout_constraints.weighty = 0.0;
-        layout_constraints.gridy = 0;
-        layout_constraints.fill = GridBagConstraints.HORIZONTAL;
-        
-        int current_column = (int)'A';
-        int current_row = 0;
-        
-        for(int i = 0; i < box_count; ++i)
-        {
-            Game.MineBox button = this.game.new MineBox(i);
-            javax.swing.JLabel box_button = button.get_button();
-            box_button.setIcon(closed_box_image_icon);
-            
-            box_button.setSize(closed_box_image_icon.getIconWidth(), closed_box_image_icon.getIconHeight());
-            box_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-            
-            current_column++;
-            
-            // Generar nueva fila al terminarse la actual
-            if(i % this.game.get_columns() == 0)
-            {
-                current_row++;
-                current_column = (int)'A';
-                layout_constraints.gridy++;
-                layout_constraints.gridx = 0;
-                layout_constraints.fill = GridBagConstraints.REMAINDER;
-            }
-            
-            game_layout.setConstraints(box_button, layout_constraints);
-            
-            layout_constraints.gridx++;
-            
-            this.game_panel.add(box_button);
-            button.set_identifier((char)current_column, current_row);
-            this.game.register_box(button);
-        }
+        this.generate_game_panel();
         
         this.setSize(this.getWidth() + (closed_box_image_icon.getIconWidth() * this.game.get_columns()), this.getHeight() + (closed_box_image_icon.getIconHeight() * this.game.get_rows()));
         this.setPreferredSize(this.getSize());
@@ -166,10 +121,32 @@ public class GameWindow extends javax.swing.JFrame {
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev)
             {
-                int response = JOptionPane.showConfirmDialog(null, "¿Seguro que desea salir de la partida?", "Salir", JOptionPane.YES_NO_OPTION);
-                if(response == JOptionPane.YES_OPTION)
+                String[] options;
+                
+                if(GameWindow.this.game.has_ended())
+                {
+                    options = new String[2];
+                    options[0] = "Si";
+                    options[1] = "No";
+                }
+                else
+                {
+                    options = new String[3];
+                    options[0] = "Si";
+                    options[1] = "No";
+                    options[2] = "Guardar y salir";
+                }
+                    
+                int response = JOptionPane.showOptionDialog(null, "¿Seguro que desea salir de la partida?", "Salir", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+                if(response == 0)
                 {
                     GameWindow.this.close_game();
+                }
+                else if(response == 2)
+                {
+                    boolean result = GameWindow.this.game.save_to_file();
+                    if(result)
+                        GameWindow.this.close_game();
                 }
             }
         });
@@ -235,6 +212,57 @@ public class GameWindow extends javax.swing.JFrame {
         corner_bottom_mid.setIcon(mid_panel_imageicon);
     }
     
+    public void generate_game_panel()
+    {
+        // Inicializar campo de minas
+        GridBagLayout game_layout = new GridBagLayout();
+        GridBagConstraints layout_constraints = new GridBagConstraints();
+        
+        this.game_panel.setLayout(game_layout);
+        int box_count = this.game.get_rows() * this.game.get_columns();
+        
+        layout_constraints.insets = new Insets(1, 1, 1, 1);
+        layout_constraints.gridx = 0;
+        layout_constraints.weightx = 0.0;
+        layout_constraints.weighty = 0.0;
+        layout_constraints.gridy = 0;
+        layout_constraints.fill = GridBagConstraints.HORIZONTAL;
+        
+        int current_column = (int)'A';
+        int current_row = 0;
+        
+        for(int i = 0; i < box_count; ++i)
+        {
+            Game.MineBox button = this.game.new MineBox(i);
+            
+            javax.swing.JLabel box_button = button.get_button();
+            box_button.setIcon(closed_box_image_icon);
+            
+            box_button.setSize(closed_box_image_icon.getIconWidth(), closed_box_image_icon.getIconHeight());
+            box_button.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+            
+            current_column++;
+            
+            // Generar nueva fila al terminarse la actual
+            if(i % this.game.get_columns() == 0)
+            {
+                current_row++;
+                current_column = (int)'A';
+                layout_constraints.gridy++;
+                layout_constraints.gridx = 0;
+                layout_constraints.fill = GridBagConstraints.REMAINDER;
+            }
+            
+            game_layout.setConstraints(box_button, layout_constraints);
+            
+            layout_constraints.gridx++;
+            
+            this.game_panel.add(box_button);
+            button.set_identifier((char)current_column, current_row);
+            this.game.register_box(button);
+        }
+    }
+    
     private void close_game()
     {
         this.setVisible(false);
@@ -289,6 +317,20 @@ public class GameWindow extends javax.swing.JFrame {
     public void set_box_flag(JLabel box, boolean flag)
     {
         box.setIcon(flag ? this.flag_image_icon : this.closed_box_image_icon);
+    }
+    
+    public int get_box_number_from_icon(JLabel box)
+    {
+        if(box.getIcon().equals(this.closed_box_image_icon))
+            return 0;
+        
+        for(int i = 1; i < 7; ++i)
+        {
+            if(box.getIcon().equals(this.mine_icons[i]))
+                return i;
+        }
+        
+        return -1;
     }
     
     /**
