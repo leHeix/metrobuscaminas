@@ -18,6 +18,11 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import metrobuscaminas.interfaces.*;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
+import org.graphstream.ui.graphicGraph.GraphicGraph;
+import org.graphstream.ui.swing_viewer.util.DefaultMouseManager;
+import org.graphstream.ui.view.View;
+import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.util.MouseManager;
 
 /**
  * Clase principal del juego. Encargada de manejar todos los datos y acciones correspondientes al tablero.
@@ -41,6 +46,7 @@ public class Game
     private int flag_count;
     private int clicked_boxes;
     private Queue<MineBox> clicked_track;
+    private Viewer graph_view;
     
     /**
      * Clase correspondiente a cada casilla en el tablero.
@@ -87,6 +93,10 @@ public class Game
                         
                         if(MineBox.this.mine)
                         {
+                            String identifier = String.format("%c%d", MineBox.this.column, MineBox.this.row);
+                            MineBox.this.node.setAttribute("ui.label", identifier + " - " + Game.this.click_count + " MINE");
+                            MineBox.this.node.setAttribute("ui.class", "mine");
+                            
                             Game.this.game_lost = true;
                             Game.this.reveal_all_mines(MineBox.this);
                             return;
@@ -108,16 +118,23 @@ public class Game
                         
                         Game.this.add_click();
                         
+                        String identifier = String.format("%c%d", MineBox.this.column, MineBox.this.row);
+                        
                         MineBox.this.has_flag = !MineBox.this.has_flag;
                         if(MineBox.this.has_flag)
                         {
                             Game.this.flag_count--;
                             Game.this.clicked_boxes++;
+                            
+                            MineBox.this.node.setAttribute("ui.label", identifier + " - " + Game.this.click_count + " FLAG");
+                            MineBox.this.node.setAttribute("ui.class", "flagged");
                         }
                         else
                         {
                             Game.this.flag_count++;
                             Game.this.clicked_boxes--;
+                            MineBox.this.node.setAttribute("ui.label", identifier);
+                            MineBox.this.node.setAttribute("ui.class", "");
                         }
                         
                         Game.this.window.update_flag_count(Game.this.flag_count);
@@ -215,7 +232,15 @@ public class Game
 "    text-background-color: rgba(255, 255, 255, 200);\n" +
 "    text-alignment: above;\n" +
 "}"
-                + "node.marked {"
+                + "node.clicked {"
+                + "fill-color: blue;"
+                + "}"
+                + ""
+                + "node.flagged {"
+                + "fill-color: green;"
+                + "}"
+                + ""
+                + "node.mine {"
                 + "fill-color: red;"
                 + "}");
     }
@@ -315,6 +340,7 @@ public class Game
         this.click_count = 0;
         this.flag_count = this.mine_count;
         this.clicked_boxes = 0;
+        this.clicked_track.clear();
         
         this.window.update_click_count(0);
         this.window.update_flag_count(this.mine_count);
@@ -328,6 +354,10 @@ public class Game
             box.mine = false;
             box.has_flag = false;
             this.window.reset_box(box.button);
+            
+            org.graphstream.graph.Node graphnode = this.graph.getNode(box.get_identifier());
+            graphnode.setAttribute("ui.label", box.get_identifier());
+            graphnode.setAttribute("ui.class", "");
             
             box_node = box_node.getNext();
         }
@@ -366,7 +396,7 @@ public class Game
                     
                     if(this.graph.getEdge(node1 + node2) == null && this.graph.getEdge(node2 + node1) == null)
                     {
-                        this.graph.addEdge(node1 + node2, node1, node2).setAttribute("ui.label", node1 + node2);
+                        this.graph.addEdge(node1 + node2, node1, node2);
                         this.adjacency_list.get(node1).get().insert_back(node2);
                         this.adjacency_list.get(node2).get().insert_back(node1);
                     }
@@ -379,7 +409,7 @@ public class Game
                     
                     if(this.graph.getEdge(node1 + node2) == null && this.graph.getEdge(node2 + node1) == null)
                     {
-                        this.graph.addEdge(node1 + node2, node1, node2).setAttribute("ui.label", node1 + node2);
+                        this.graph.addEdge(node1 + node2, node1, node2);
                         this.adjacency_list.get(node1).get().insert_back(node2);
                         this.adjacency_list.get(node2).get().insert_back(node1);
                     }
@@ -392,7 +422,7 @@ public class Game
                     
                     if(this.graph.getEdge(node1 + node2) == null && this.graph.getEdge(node2 + node1) == null)
                     {
-                        this.graph.addEdge(node1 + node2, node1, node2).setAttribute("ui.label", node1 + node2);
+                        this.graph.addEdge(node1 + node2, node1, node2);
                         this.adjacency_list.get(node1).get().insert_back(node2);
                         this.adjacency_list.get(node2).get().insert_back(node1);
                     }
@@ -402,7 +432,29 @@ public class Game
             mb_node = mb_node.getNext();
         }
         
-        this.graph.display();
+        this.graph_view = this.graph.display();
+        this.graph_view.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+        MouseManager manager = new DefaultMouseManager(){
+                @Override
+                public void mouseClicked(MouseEvent e) {}
+                @Override
+                public void mousePressed(MouseEvent e) {}
+                @Override
+                public void mouseReleased(MouseEvent e) {}
+                @Override
+                public void mouseEntered(MouseEvent e) {}
+                @Override
+                public void mouseExited(MouseEvent e) {}
+                @Override
+                public void mouseDragged(MouseEvent e) {}
+                @Override
+                public void mouseMoved(MouseEvent e) {}
+                @Override
+                public void init(GraphicGraph graph, View view) {}
+                @Override
+                public void release() {}
+            };
+        this.graph_view.getDefaultView().setMouseManager(manager);
     }
     
     /**
@@ -417,6 +469,8 @@ public class Game
         String node = String.format("%c%d", box.get_column(), box.get_row());
         this.adjacency_list.insert(node, new List<>());
         box.node = this.graph.addNode(node);
+        box.node.setAttribute("x", 0 + box.index * 3);
+        box.node.setAttribute("y", box.row * 3);
         box.node.setAttribute("ui.label", node);
     }
     
@@ -488,6 +542,13 @@ public class Game
                 if(mine_count > 0)
                 {
                     this.window.reveal_box(current_box.get_button(), mine_count);
+                    
+                    // Marcar la casilla como descubierta en el graph
+                    org.graphstream.graph.Node graphnode = this.graph.getNode(current_box.get_identifier());
+                    graphnode.setAttribute("ui.class", "clicked");
+                    graphnode.setAttribute("ui.label", String.format("%s - %d", current_box.get_identifier(), this.click_count));
+                    this.clicked_track.add(current_box);
+                        
                     this.clicked_boxes++;
                     current_box.revealed = true;
                     continue;
@@ -497,6 +558,13 @@ public class Game
                     if(!current_box.has_flag)
                     {
                         this.window.reveal_box(current_box.get_button(), 0);
+                        
+                        // Marcar la casilla como descubierta en el graph
+                        org.graphstream.graph.Node graphnode = this.graph.getNode(current_box.get_identifier());
+                        graphnode.setAttribute("ui.class", "clicked");
+                        graphnode.setAttribute("ui.label", String.format("%s - %d", current_box.get_identifier(), this.click_count));
+                        this.clicked_track.add(current_box);
+                        
                         this.clicked_boxes++;
                         current_box.revealed = true;
                     }
@@ -560,6 +628,13 @@ public class Game
                 if(mine_count > 0)
                 {
                     this.window.reveal_box(current_box.get_button(), mine_count);
+                    
+                    // Marcar la casilla como descubierta en el graph
+                    org.graphstream.graph.Node graphnode = this.graph.getNode(current_box.get_identifier());
+                    graphnode.setAttribute("ui.class", "clicked");
+                    graphnode.setAttribute("ui.label", String.format("%s - %d", current_box.get_identifier(), this.click_count));
+                    this.clicked_track.add(current_box);
+                    
                     this.clicked_boxes++;
                     current_box.revealed = true;
                     continue;
@@ -569,6 +644,13 @@ public class Game
                     if(!current_box.has_flag)
                     {
                         this.window.reveal_box(current_box.get_button(), 0);
+                        
+                        // Marcar la casilla como descubierta en el graph
+                        org.graphstream.graph.Node graphnode = this.graph.getNode(current_box.get_identifier());
+                        graphnode.setAttribute("ui.class", "clicked");
+                        graphnode.setAttribute("ui.label", String.format("%s - %d", current_box.get_identifier(), this.click_count));
+                        this.clicked_track.add(current_box);
+                    
                         this.clicked_boxes++;
                         current_box.revealed = true;
                     }
@@ -825,4 +907,16 @@ public class Game
         
         return false;
     }
+    
+    /**
+     * Función para obtener el graph de recorrido del tablero.
+     * @return El objeto del graph.
+     */
+    public AdjacencyListGraph get_graph() { return this.graph; }
+    
+    /**
+     * Función para retornar el viewer del graph de recorrido.
+     * @return El objeto Viewer del graph de recorrido mostrado.
+     */
+    public Viewer get_graph_viewer() { return this.graph_view; }
 }

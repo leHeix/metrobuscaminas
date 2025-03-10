@@ -286,6 +286,8 @@ public class GameWindow extends javax.swing.JFrame {
      */
     private void close_game()
     {
+        this.game.get_graph_viewer().close();
+        
         this.setVisible(false);
         this.dispose();
         this.main_menu.setVisible(true);
